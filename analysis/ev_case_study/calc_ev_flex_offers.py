@@ -55,7 +55,7 @@ def calc_ev_flex_offers(veh_availabilities,
 
     # Go through all vehicle availabilities
     for i in range(len(veh_availabilities)):
-        print('################# Vehicle availability #' + str(i) + ' #################')
+        print(f'################# Vehicle availability #{str(i)} #################')
         # Ceil arrival time to next quarter hour
         t_arrival_ceiled = pd.Timestamp(veh_availabilities['t_arrival'][i]).ceil(freq='15Min')
         # Floor departure time to previous quarter hour
@@ -87,7 +87,7 @@ def calc_ev_flex_offers(veh_availabilities,
         for price in price_fcst.columns:
             # Go through all power levels
             for power in power_levels:
-                print('#' + str(i) + ': Power=' + str(power) + ' Pricing=' + price)
+                print(f'#{str(i)}: Power={str(power)} Pricing=' + price)
                 # Update forecast data
                 my_ems['fcst']['ele_price_in'] = price_fcst[price].to_list()
 
@@ -148,11 +148,14 @@ def calc_ev_flex_offers_parallel(param_variation,
     # Check whether time between ceiled arrival and floored departure time are at least two time steps
     if t_arrival_ceiled >= t_departure_floored:
         if param_fix['info']:
-            print('#' + str(param_variation[2][0]) + ': Time not sufficient.')
+            print(f'#{str(param_variation[2][0])}: Time not sufficient.')
         return
     else:
         if param_fix['info']:
-            print('#' + str(param_variation[2][0]) + ': Power=' + str(param_variation[0]) + ' Pricing=' + param_variation[1])
+            print(
+                f'#{str(param_variation[2][0])}: Power={str(param_variation[0])} Pricing='
+                + param_variation[1]
+            )
 
     # change the time interval
     my_ems['time_data']['start_time'] = t_arrival_ceiled.strftime('%Y-%m-%d %H:%M')
@@ -234,16 +237,14 @@ if __name__ == '__main__':
 
     # Create all possible combinations of params
     keys = list(params)
-    param_variations = list()
     param_con = {'conversion_distance_2_km': 1.61,
                  'conversion_km_2_kwh': 0.2,
                  'rtp_input_data_path': 'C:/Users/ga47num/PycharmProjects/OpenTUMFlexPy/analysis/input/RTP/',
                  'output_path': 'C:/Users/ga47num/PycharmProjects/OpenTUMFlexPy/analysis/output/',
                  'pricing_strategies': ['ToU', 'Constant', 'Con_mi', 'ToU_mi', 'RTP'],
                  'plotting': False}
-    for values in itertools.product(*map(params.get, keys)):
-        # Store in list
-        param_variations.append(list(values))
-
+    param_variations = [
+        list(values) for values in itertools.product(*map(params.get, keys))
+    ]
     # Run flex calculation in parallel
     Parallel(n_jobs=int(multiprocessing.cpu_count()))(delayed(calc_ev_flex_offers_parallel)(i, param_con) for i in param_variations)

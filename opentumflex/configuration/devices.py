@@ -106,7 +106,6 @@ def create_device(device_name, minpow=0, maxpow=0, stocap=0, eta=1, init_soc=60,
             dict_unit_hp = {device_name: dict_hp}
         return dict_unit_hp
 
-    # use case for electric vehicle
     elif device_name == 'ev':
 
         if path is None:
@@ -150,9 +149,7 @@ def create_device(device_name, minpow=0, maxpow=0, stocap=0, eta=1, init_soc=60,
                 # change them to 1
                 aval[_aval_start:_aval_end + 1] = 1
                 # for the first time step the init_soc_check isn't needed, otherwise it should be same as init_soc[i]
-                if _aval_start == 0:
-                    pass
-                else:
+                if _aval_start != 0:
                     init_soc_check[_aval_start - 1] = init_soc[i]
 
                 # end_soc_check should be kept for possible time steps
@@ -188,7 +185,6 @@ def create_device(device_name, minpow=0, maxpow=0, stocap=0, eta=1, init_soc=60,
             df_unit_ev = unit
             dict_unit_ev = {device_name: df_unit_ev}
 
-        # initialize EV from local file
         else:
             with open(path) as f:
                 dict_ev = js.load(f)
@@ -196,7 +192,6 @@ def create_device(device_name, minpow=0, maxpow=0, stocap=0, eta=1, init_soc=60,
 
         return dict_unit_ev
 
-    # use case for heat storage
     elif device_name == 'sto':
 
         if path is None:
@@ -219,7 +214,6 @@ def create_device(device_name, minpow=0, maxpow=0, stocap=0, eta=1, init_soc=60,
 
         return dict_unit_sto
 
-    # Update device: PV
     elif device_name == 'pv':
         df_unit_pv = {"maxpow": maxpow,
                       "minpow": minpow,
@@ -227,13 +221,11 @@ def create_device(device_name, minpow=0, maxpow=0, stocap=0, eta=1, init_soc=60,
         dict_pv = {device_name: df_unit_pv}
         return dict_pv
 
-    # Update device: Bat
     elif device_name == 'bat':
         df_unit_bat = unit
         dict_bat = {device_name: df_unit_bat}
         return dict_bat
 
-    # for other situations: battery, chp, pv
     else:
 
         if path is None:

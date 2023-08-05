@@ -3,6 +3,7 @@ The get_RTP_data module requests real time prices from ComED, an energy supplier
 resamples them from a 5 to a 15 minute resolution.
 """
 
+
 __author__ = "Michel Zadé"
 __copyright__ = "2020 TUM-EWK"
 __credits__ = []
@@ -28,18 +29,18 @@ t_start = '201901010000'
 t_end = '202001010000'
 avg_price_california = 0.19
 # gets all data from website
-price_data = requests.get('https://hourlypricing.comed.com/api?type=5minutefeed&datestart=' + t_start +
-                          '&dateend=' + t_end)
+price_data = requests.get(
+    f'https://hourlypricing.comed.com/api?type=5minutefeed&datestart={t_start}&dateend={t_end}'
+)
 # parses data to dictionary
 parsed = json.loads(price_data.content)
 
 rtp_df = pd.DataFrame(parsed)
-timesteps = list()
-
-# convert millisUTC to timestamp
-for i in range(len(rtp_df)):
-    timesteps.append(datetime.datetime.fromtimestamp(int(rtp_df['millisUTC'][i])/1000) - pd.Timedelta('7 h'))
-
+timesteps = [
+    datetime.datetime.fromtimestamp(int(rtp_df['millisUTC'][i]) / 1000)
+    - pd.Timedelta('7 h')
+    for i in range(len(rtp_df))
+]
 # Insert timesteps into
 rtp_df.insert(column='timesteps', value=timesteps, loc=0)
 # Since data is from 2013-2014 a date offset of one year and six hours is subtracted
@@ -83,7 +84,9 @@ rtp_per_daytime['price'].plot()
 plt.grid()
 
 # Save price df in hdf files
-rtp_15min.to_hdf('input/RTP/rtp_15min_' +
-                 t_start + '-' + t_end + '.h5', mode='w', key='df')
-rtp_per_daytime.to_hdf('input/RTP/rtp_per_daytime_' +
-                       t_start + '-' + t_end + '.h5', mode='w', key='df')
+rtp_15min.to_hdf(
+    f'input/RTP/rtp_15min_{t_start}-{t_end}.h5', mode='w', key='df'
+)
+rtp_per_daytime.to_hdf(
+    f'input/RTP/rtp_per_daytime_{t_start}-{t_end}.h5', mode='w', key='df'
+)

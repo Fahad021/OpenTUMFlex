@@ -61,28 +61,19 @@ def simulate_elect_price_fcst(rtp_input_data_path='../analysis/input/RTP/',
                 # Check weekday (0-4)
                 if price_fcst.index[i].weekday() < 5:
                     # Check on peak period(4pm - 9pm):
-                    if 16 <= price_fcst.index[i].hour < 21:
-                        price_fcst.loc[price_fcst.index[i], 'ToU'] = on_peak_summer_rate
-                    # Off peak period
-                    else:
-                        price_fcst.loc[price_fcst.index[i], 'ToU'] = off_peak_summer_rate
-                # Weekend
+                    price_fcst.loc[price_fcst.index[i], 'ToU'] = (
+                        on_peak_summer_rate
+                        if 16 <= price_fcst.index[i].hour < 21
+                        else off_peak_summer_rate
+                    )
+                elif 16 <= price_fcst.index[i].hour < 21:
+                    price_fcst.loc[price_fcst.index[i], 'ToU'] = mid_peak_summer_rate
                 else:
-                    # Check on peak period(4pm - 9pm):
-                    if 16 <= price_fcst.index[i].hour < 21:
-                        price_fcst.loc[price_fcst.index[i], 'ToU'] = mid_peak_summer_rate
-                    # Off peak period
-                    else:
-                        price_fcst.loc[price_fcst.index[i], 'ToU'] = off_peak_summer_rate
-            # Winter months
+                    price_fcst.loc[price_fcst.index[i], 'ToU'] = off_peak_summer_rate
+            elif 16 <= price_fcst.index[i].hour < 21:
+                price_fcst.loc[price_fcst.index[i], 'ToU'] = mid_peak_winter_rate
             else:
-                # Weekdays and weekends are the same
-                # Check mid peak period(4pm - 9pm):
-                if 16 <= price_fcst.index[i].hour < 21:
-                    price_fcst.loc[price_fcst.index[i], 'ToU'] = mid_peak_winter_rate
-                # Super off-peak period
-                else:
-                    price_fcst.loc[price_fcst.index[i], 'ToU'] = super_off_peak_winter_rate
+                price_fcst.loc[price_fcst.index[i], 'ToU'] = super_off_peak_winter_rate
 
     # Set random and EPEX prices ##################################
     if 'Random' in price_fcst.columns:
@@ -117,8 +108,17 @@ def simulate_elect_price_fcst(rtp_input_data_path='../analysis/input/RTP/',
                                                 t_start+pd.Timedelta('1826d'):].values,
                                                 rtp_price_forecast_2013['price'].loc[:t_end].values))
         else:
-            rtp_price_forecast = pd.read_hdf(rtp_input_data_path + [
-                i for i in rtp_files if 'rtp_15min_' + str(t_start.year) in i][0], key='df')
+            rtp_price_forecast = pd.read_hdf(
+                (
+                    rtp_input_data_path
+                    + [
+                        i
+                        for i in rtp_files
+                        if f'rtp_15min_{str(t_start.year)}' in i
+                    ][0]
+                ),
+                key='df',
+            )
             # rtp_price_forecast = pd.read_pickle(
             #     rtp_input_data_path + [i for i in rtp_files if 'rtp_15min_' + str(t_start.year) in i][0], key='df')
 

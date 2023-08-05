@@ -137,7 +137,6 @@ def calc_flex_ev(my_ems, reopt=0):
                                                                    n_time_steps_phour)
                     if ev_flex_temp[e_neg].iat[i] <= 0:
                         ev_flex_temp[p_neg].iat[i] = 0
-                # Offers with modulated power
                 elif ev_flex_temp[p_neg].iat[i] < my_ems['devices']['ev']['maxpow']:
                     # Calculate the cumulated sum of flex and optimal charging schedule
                     temp_flex_df = pd.DataFrame(0, columns={'E_opt', 'E_flex', 'E_opt_cumsum',
@@ -149,18 +148,17 @@ def calc_flex_ev(my_ems, reopt=0):
                     temp_flex_df['E_flex_cumsum'] = temp_flex_df['E_flex'].cumsum()
                     temp_flex_df['E_flex_opt_cumsum'] = (temp_flex_df['E_opt'] + temp_flex_df['E_flex']).cumsum()
                     # Check whether maximal possible energy is more than remaining energy
-                    if max(temp_flex_df['E_flex_opt_cumsum']) < ev_flex_temp[e_remain].iat[i]:
-                        pass
-                    else:
+                    if (
+                        max(temp_flex_df['E_flex_opt_cumsum'])
+                        >= ev_flex_temp[e_remain].iat[i]
+                    ):
                         # Find number of time steps until remaining energy has been charged
                         idx_allowed = int((temp_flex_df['E_flex_opt_cumsum'][temp_flex_df['E_flex_opt_cumsum'] >
                                                                              ev_flex_temp[e_remain].iat[i]].index[0] -
                                            ev_flex_temp.index[i]).total_seconds() / 3600 * n_time_steps_phour)
                         # Calculate maximal available time steps negative flex can be offered
                         # if number of available time steps is lower do not change offered energy
-                        if idx_p_neg_max <= idx_allowed:
-                            pass
-                        else:
+                        if idx_p_neg_max > idx_allowed:
                             # Flexible energy is the sum of energy for maximal power
                             ev_flex_temp[e_neg].iat[i] = temp_flex_df['E_flex'][:idx_allowed].sum()
 

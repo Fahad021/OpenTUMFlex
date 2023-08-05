@@ -424,12 +424,11 @@ def solve_model(m, solver, time_limit=100, min_gap=0.001, troubleshooting=True):
 
     # optimizer.solve(m, load_solutions=True, options=solver_opt, tee=True)
     if solver == "glpk":
-        solver_opt = dict()
-        solver_opt['mipgap'] = min_gap
+        solver_opt = {'mipgap': min_gap}
         optimizer.solve(m, load_solutions=True, options=solver_opt, tee=troubleshooting, timelimit=time_limit)
     elif solver == "gurobi":
-        optimizer.set_options("timelimit="+str(time_limit))  # seconds
-        optimizer.set_options("mipgap="+str(min_gap))  # default = 1e-3
+        optimizer.set_options(f"timelimit={str(time_limit)}")
+        optimizer.set_options(f"mipgap={str(min_gap)}")
         optimizer.solve(m, load_solutions=True, tee=troubleshooting)
     else:
         try:
@@ -461,12 +460,44 @@ def extract_res(m, ems):
     # print('Load Results ...\n')
 
     # electricity variable
-    HP_ele_cap, HP_ele_run, elec_import, elec_export, lastprofil_elec, ev_pow, ev_soc, CHP_cap, pv_power, bat_cont, \
-    bat_power, pv_pv2demand, pv_pv2grid, bat_grid2bat, bat_power_pos, bat_power_neg, CHP_elec_run, CHP_operation, \
-    elec_supply_price, opt_ele_price = (np.zeros(length) for i in range(20))
+    (
+        HP_ele_cap,
+        HP_ele_run,
+        elec_import,
+        elec_export,
+        lastprofil_elec,
+        ev_pow,
+        ev_soc,
+        CHP_cap,
+        pv_power,
+        bat_cont,
+        bat_power,
+        pv_pv2demand,
+        pv_pv2grid,
+        bat_grid2bat,
+        bat_power_pos,
+        bat_power_neg,
+        CHP_elec_run,
+        CHP_operation,
+        elec_supply_price,
+        opt_ele_price,
+    ) = (np.zeros(length) for _ in range(20))
     # heat variable
-    boiler_cap, CHP_heat_run, HP_heat_run, HP_heat_cap, CHP_operation, HP_operation, lastprofil_heat, sto_e_pow, \
-    sto_e_pow_pos, CHP_gas_run, sto_e_pow_neg, sto_e_cont, HP_room_temp = (np.zeros(length) for i in range(13))
+    (
+        boiler_cap,
+        CHP_heat_run,
+        HP_heat_run,
+        HP_heat_cap,
+        CHP_operation,
+        HP_operation,
+        lastprofil_heat,
+        sto_e_pow,
+        sto_e_pow_pos,
+        CHP_gas_run,
+        sto_e_pow_neg,
+        sto_e_cont,
+        HP_room_temp,
+    ) = (np.zeros(length) for _ in range(13))
 
     # COP - HP
     HP_cop = np.zeros(length)
@@ -478,12 +509,10 @@ def extract_res(m, ems):
     bat_max_cont = get_value(m.bat_cont_max)
     sto_cont_max = get_value(m.sto_max_cont)
 
-    i = 0
-
     # timesteps = sorted(get_entity(prob, 't').index)
     # demand, ext, pro, sto = get_timeseries(prob, timesteps
 
-    for idx in timesteps:
+    for i, idx in enumerate(timesteps):
         # electricity balance
 
         ev_pow[i] = get_value(m.ev_power[idx])
@@ -537,8 +566,6 @@ def extract_res(m, ems):
 
         # the total cost
         cost_min[i] = get_value(m.costs[idx])
-
-        i += 1
 
     SOC_heat = sto_e_cont / sto_cont_max * 100 if sto_cont_max > 0 else 0 * sto_e_cont
     SOC_elec = bat_cont / bat_max_cont * 100 if bat_max_cont > 0 else 0 * bat_cont

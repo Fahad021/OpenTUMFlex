@@ -24,7 +24,7 @@ def calc_flex_pv(my_ems, reopt):
     elif reopt == 1:
         dat1 = my_ems['reoptim']['optplan']['pv_pv2grid'] 
         dat2 = my_ems['reoptim']['optplan']['PV_power'] 
-        
+
     nsteps = len(dat1)
     ntsteps = my_ems['time_data']['ntsteps']
     PV_flex = pd.DataFrame(0, index=range(nsteps), columns=range(7))
@@ -44,9 +44,9 @@ def calc_flex_pv(my_ems, reopt):
     for i in range(0, nsteps):
         if PV_flex.iloc[i, 1] < 0:
             net_income = 0
-            net_income = net_income + dat1[i] * -my_ems['fcst']['ele_price_out'][i] / ntsteps
+            net_income += dat1[i] * -my_ems['fcst']['ele_price_out'][i] / ntsteps
             PV_flex.iloc[i, 5] = net_income * ntsteps / PV_flex.iloc[i, 1]
-            
+
     # Insert time column
     # temp = my_ems['time_data']['time_slots'][:]
     # PV_flex.insert(0,"time",temp)

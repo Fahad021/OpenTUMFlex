@@ -37,7 +37,7 @@ def initialize_time_setting(t_inval, start_time, end_time, d_inval=15, days=1):
     ems['time_data']['start_time'] = start_time  # '2019-12-18 00:00'
     ems['time_data']['end_time'] = end_time  # '2019-12-18 23:45'
     ems['time_data']['days'] = days
-    ems.update(update_time_data(ems))
+    ems |= update_time_data(ems)
 
     # Initialize EMS
     initialize_ems(ems)

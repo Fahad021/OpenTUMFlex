@@ -28,12 +28,12 @@ def save_results(ems, path):
     try:
         os.mkdir(path)
     except OSError:
-        print("Opmtization result are being saved in %s" % path)
+        print(f"Opmtization result are being saved in {path}")
     else:
-        print("Successfully created the directory %s " % path)
+        print(f"Successfully created the directory {path} ")
 
     now = datetime.now().strftime('%Y%m%dT%H%M')
-    resultfile = os.path.join(path, 'result_optimization_{}.xlsx'.format(now))
+    resultfile = os.path.join(path, f'result_optimization_{now}.xlsx')
     writer = pd.ExcelWriter(resultfile)
     df = pd.DataFrame(data=ems['optplan'])
     df.to_excel(writer, 'operation_plan', merge_cells=False)

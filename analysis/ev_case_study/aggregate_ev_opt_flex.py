@@ -43,6 +43,7 @@ def aggregate_ev_flex(veh_availabilities, output_path='../output/', rtp_input_da
     power_levels = os.listdir(output_path)
     days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
 
+    n_percentiles = 11           # Define number of percentiles
     # Go through all power levels
     for power in tqdm(power_levels):
         # Create folder for aggregated data
@@ -267,7 +268,6 @@ def aggregate_ev_flex(veh_availabilities, output_path='../output/', rtp_input_da
                                                                                                 freq='15Min').strftime('%H:%M'))
         # Calculate percentiles per daytime
         opt_per_daytime_qt = pd.DataFrame()
-        n_percentiles = 11           # Define number of percentiles
         percentiles = np.linspace(start=0, stop=1, num=n_percentiles)
         opt_per_daytime_temp = opt_sum_df.groupby(by='Daytime_ID').quantile(percentiles)
         opt_per_daytime_qt = opt_per_daytime_qt.append(opt_per_daytime_temp.iloc[96 * n_percentiles:192 * n_percentiles, :])

@@ -73,9 +73,7 @@ def update_time_data(ems):
     # calculate the time steps in each hour
     dict_time['ntsteps'] = int(60 / ems['time_data']['t_inval'])
 
-    dict_time_data = {'time_data': dict_time}
-
-    return dict_time_data
+    return {'time_data': dict_time}
 
 
 def read_data(ems, path=None, to_csv=False, fcst_only=True):
@@ -88,7 +86,7 @@ def read_data(ems, path=None, to_csv=False, fcst_only=True):
     :return: ems object updated by the input data
     """
 
-    # Check for the file type 
+    # Check for the file type
     if path.endswith('.xlsx'):
         print('Reading your excel file, please wait!')
         # obtain the spreadsheet data
@@ -108,12 +106,9 @@ def read_data(ems, path=None, to_csv=False, fcst_only=True):
                 os.mkdir('input')
             directory = os.path.join(r'input', filename)
             with open(directory, 'w') as f:
-                if not fcst_only:
-                    pd.concat([prop, ts], sort=False).to_csv(f, sep=';')
-                else:
+                if fcst_only:
                     prop = pd.DataFrame(index=range(len(ts)), columns=range(0, 2))
-                    pd.concat([prop, ts], sort=False).to_csv(f, sep=';')
-
+                pd.concat([prop, ts], sort=False).to_csv(f, sep=';')
     elif path.endswith('.csv'):
         csv_data = pd.read_csv(path, sep=';', index_col=0)
         prop = csv_data.iloc[:, 0:2].dropna(how='all')

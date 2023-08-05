@@ -3,6 +3,7 @@ This script computes all results and plots concerning the flexibility potential 
 "Quantifying the Flexibility of Electric Vehicles in Germany and California – A Case Study".
 """
 
+
 __author__ = "Michel Zadé"
 __copyright__ = "2020 TUM-EWK"
 __credits__ = []
@@ -46,7 +47,6 @@ ev_case_study.create_output_folder(output_path=output_path,
 
 # Create all possible combinations of params
 keys = list(params)
-param_variations = list()
 param_con = {'conversion_distance_2_km': 1.61,
              'conversion_km_2_kwh': 0.2,
              'rtp_input_data_path': rtp_input_path,
@@ -54,10 +54,9 @@ param_con = {'conversion_distance_2_km': 1.61,
              'pricing_strategies': ['ToU', 'Constant', 'Con_mi', 'ToU_mi', 'RTP'],
              'plotting': False,
              'info': False}
-for values in itertools.product(*map(params.get, keys)):
-    # Store in list
-    param_variations.append(list(values))
-
+param_variations = [
+    list(values) for values in itertools.product(*map(params.get, keys))
+]
 print('2. Calculate flexibility offers.')
 
 # Run flex calculation in parallel
